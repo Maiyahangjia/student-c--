@@ -1,0 +1,10 @@
+-- 学生表创建语句
+CREATE TABLE IF NOT EXISTS students (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    age INT NOT NULL,
+    gender VARCHAR(20) NOT NULL,
+    student_id VARCHAR(20) NOT NULL UNIQUE,
+    major VARCHAR(100) NOT NULL,
+    contact VARCHAR(100)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

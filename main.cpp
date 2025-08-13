@@ -152,9 +152,9 @@ void queryAllStudents(StudentManager& manager) {
 int main() {
     // 数据库连接信息
     std::string host = "101.132.190.127";
-    std::string user = "root"; // 默认用户名，实际使用时需要修改
-    std::string password = "password"; // 默认密码，实际使用时需要修改
-    std::string database = "student_db"; // 数据库名称
+    std::string user = "zyc"; // 默认用户名，实际使用时需要修改
+    std::string password = "zyc"; // 默认密码，实际使用时需要修改
+    std::string database = "player"; // 数据库名称
     unsigned int port = 3306; // 数据库端口
 
     try {

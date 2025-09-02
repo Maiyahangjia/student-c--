@@ -2,12 +2,14 @@
 #include "Student.h"
 #include "StudentManager.h"
 #include "RandomStudentGenerator.h"
+#include "Logger.h"
 #include <iostream>
 #include <string>
 #include <memory>
 
 // 生成11个随机学生并添加到数据库
 void generateRandomStudents(StudentManager& manager) {
+    LOG_INFO("开始生成11个随机学生信息");
     RandomStudentGenerator generator;
     std::vector<Student> students = generator.generate11Students();
 
@@ -15,10 +17,14 @@ void generateRandomStudents(StudentManager& manager) {
     for (const auto& student : students) {
         if (manager.addStudent(student)) {
             successCount++;
+            LOG_INFO("成功添加随机学生: " + student.getName() + ", 学号: " + student.getStudentId());
+        } else {
+            LOG_WARNING("添加随机学生失败: " + student.getName() + ", 学号: " + student.getStudentId());
         }
     }
 
     std::cout << "成功添加了 " << successCount << " 个随机学生!" << std::endl;
+    LOG_INFO("随机学生生成完成，共成功添加 " + std::to_string(successCount) + " 个学生");
 }
 
 // 显示菜单
@@ -57,8 +63,10 @@ void addStudent(StudentManager& manager) {
     Student student(name, age, gender, studentId, major, contact);
     if (manager.addStudent(student)) {
         std::cout << "学生添加成功!" << std::endl;
+        LOG_INFO("用户添加学生成功: " + name + ", 学号: " + studentId);
     } else {
         std::cout << "学生添加失败!" << std::endl;
+        LOG_ERROR("用户添加学生失败: " + name + ", 学号: " + studentId);
     }
 }
 
@@ -67,10 +75,12 @@ void updateStudent(StudentManager& manager) {
     int id;
     std::cout << "请输入要更新的学生ID: " << std::endl;
     std::cin >> id;
+    LOG_INFO("用户尝试更新学生ID: " + std::to_string(id));
 
     Student student = manager.getStudentById(id);
     if (student.getId() == 0) {
         std::cout << "未找到该学生!" << std::endl;
+        LOG_WARNING("用户更新学生失败: 未找到ID为 " + std::to_string(id) + " 的学生");
         return;
     }
 
@@ -103,8 +113,10 @@ void updateStudent(StudentManager& manager) {
 
     if (manager.updateStudent(student)) {
         std::cout << "学生信息更新成功!" << std::endl;
+        LOG_INFO("用户更新学生成功: " + name + ", ID: " + std::to_string(id));
     } else {
         std::cout << "学生信息更新失败!" << std::endl;
+        LOG_ERROR("用户更新学生失败: ID: " + std::to_string(id));
     }
 }
 
@@ -113,11 +125,14 @@ void deleteStudent(StudentManager& manager) {
     int id;
     std::cout << "请输入要删除的学生ID: " << std::endl;
     std::cin >> id;
+    LOG_INFO("用户尝试删除学生ID: " + std::to_string(id));
 
     if (manager.deleteStudent(id)) {
         std::cout << "学生删除成功!" << std::endl;
+        LOG_INFO("用户删除学生成功: ID: " + std::to_string(id));
     } else {
         std::cout << "学生删除失败!" << std::endl;
+        LOG_ERROR("用户删除学生失败: ID: " + std::to_string(id));
     }
 }
 
@@ -126,30 +141,37 @@ void queryStudent(StudentManager& manager) {
     int id;
     std::cout << "请输入要查询的学生ID: " << std::endl;
     std::cin >> id;
+    LOG_INFO("用户查询学生ID: " + std::to_string(id));
 
     Student student = manager.getStudentById(id);
     if (student.getId() == 0) {
         std::cout << "未找到该学生!" << std::endl;
+        LOG_WARNING("用户查询学生未找到: ID: " + std::to_string(id));
     } else {
         std::cout << "学生信息: " << std::endl;
         student.print();
+        LOG_INFO("用户查询学生成功: " + student.getName() + ", ID: " + std::to_string(id));
     }
 }
 
 // 查询所有学生
 void queryAllStudents(StudentManager& manager) {
+    LOG_INFO("用户查询所有学生信息");
     std::vector<Student> students = manager.getAllStudents();
     if (students.empty()) {
         std::cout << "暂无学生记录!" << std::endl;
+        LOG_INFO("当前系统中暂无学生记录");
     } else {
         std::cout << "所有学生信息: " << std::endl;
         for (const auto& student : students) {
             student.print();
         }
+        LOG_INFO("成功查询到 " + std::to_string(students.size()) + " 条学生记录");
     }
 }
 
 int main() {
+    LOG_INFO("学生管理系统启动");
     // 数据库连接信息
     std::string host = "101.132.190.127";
     std::string user = "zyc"; // 默认用户名，实际使用时需要修改
@@ -158,19 +180,23 @@ int main() {
     unsigned int port = 3306; // 数据库端口
 
     try {
+        LOG_INFO("尝试连接数据库: " + host + ":" + std::to_string(port) + ", 数据库: " + database + ", 用户: " + user);
         // 创建数据库连接
         auto dbConnection = std::make_unique<DatabaseConnection>(host, user, password, database, port);
 
         // 连接数据库
         if (!dbConnection->connect()) {
             std::cerr << "数据库连接失败: " << dbConnection->getLastError() << std::endl;
+            LOG_ERROR("数据库连接失败: " + dbConnection->getLastError());
             return 1;
         }
 
         std::cout << "数据库连接成功!" << std::endl;
+        LOG_INFO("数据库连接成功");
 
         // 创建学生管理器
         StudentManager manager(std::move(dbConnection));
+        LOG_INFO("学生管理器初始化成功");
 
         int choice;
         while (true) {
@@ -194,10 +220,13 @@ int main() {
                     queryAllStudents(manager);
                     break;
                 case 6:
+                    LOG_INFO("用户执行数据库表初始化");
                     if (manager.initDatabase()) {
                         std::cout << "数据库表初始化成功!" << std::endl;
+                        LOG_INFO("数据库表初始化成功");
                     } else {
                         std::cout << "数据库表初始化失败!" << std::endl;
+                        LOG_ERROR("数据库表初始化失败");
                     }
                     break;
                 case 7:
@@ -213,8 +242,10 @@ int main() {
         }
     } catch (const std::exception& e) {
         std::cerr << "发生异常: " << e.what() << std::endl;
+        LOG_ERROR("系统发生异常: " + std::string(e.what()));
         return 1;
     }
 
+    LOG_INFO("学生管理系统正常退出");
     return 0;
 }

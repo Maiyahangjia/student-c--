@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include "Logger.h"
 
 // 数据库连接类
 class DatabaseConnection {
@@ -25,8 +26,10 @@ public:
         // 初始化MySQL句柄
         mysql = mysql_init(nullptr);
         if (!mysql) {
+            LOG_ERROR("Failed to initialize MySQL connection object");
             throw std::runtime_error("Failed to initialize MySQL connection object");
         }
+        LOG_INFO("DatabaseConnection object created for host: " + host + ", database: " + database);
     }
 
     // 析构函数
@@ -66,18 +69,27 @@ public:
 
     // 连接数据库
     bool connect() {
+        LOG_INFO("Attempting to connect to MySQL server at " + host + ":" + std::to_string(port));
         if (!mysql_real_connect(mysql, host.c_str(), user.c_str(), password.c_str(),
                                 database.c_str(), port, nullptr, 0)) {
+            LOG_ERROR("Failed to connect to MySQL server: " + getLastError());
             return false;
         }
         // 设置字符集
         mysql_set_character_set(mysql, "utf8mb4");
+        LOG_INFO("Successfully connected to MySQL server: " + host + ", database: " + database);
         return true;
     }
 
     // 执行SQL查询（不返回结果）
     bool executeQuery(const std::string& query) {
+        // 仅记录查询类型，不记录完整查询内容（避免日志过大）
+        std::string queryType = query.substr(0, query.find_first_of(" "));
+        for (char &c : queryType) c = toupper(c);
+        LOG_INFO("Executing SQL query: " + queryType);
+        
         if (mysql_query(mysql, query.c_str()) != 0) {
+            LOG_ERROR("Failed to execute SQL query: " + getLastError());
             return false;
         }
         return true;
@@ -85,7 +97,13 @@ public:
 
     // 执行SQL查询（返回结果集）
     MYSQL_RES* executeSelectQuery(const std::string& query) {
+        // 仅记录查询类型，不记录完整查询内容
+        std::string queryType = query.substr(0, query.find_first_of(" "));
+        for (char &c : queryType) c = toupper(c);
+        LOG_INFO("Executing SQL select query: " + queryType);
+        
         if (mysql_query(mysql, query.c_str()) != 0) {
+            LOG_ERROR("Failed to execute SQL select query: " + getLastError());
             return nullptr;
         }
         return mysql_store_result(mysql);

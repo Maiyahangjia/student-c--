@@ -70,6 +70,11 @@ public:
     // 连接数据库
     bool connect() {
         LOG_INFO("Attempting to connect to MySQL server at " + host + ":" + std::to_string(port));
+        
+        // 设置连接超时为10秒，避免程序无限等待
+        mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT, "10");
+        
+        // 尝试连接数据库
         if (!mysql_real_connect(mysql, host.c_str(), user.c_str(), password.c_str(),
                                 database.c_str(), port, nullptr, 0)) {
             LOG_ERROR("Failed to connect to MySQL server: " + getLastError());

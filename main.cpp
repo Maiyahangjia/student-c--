@@ -196,17 +196,25 @@ int main() {
         std::cout << "数据库连接成功!" << std::endl;
         LOG_INFO("数据库连接成功");
 
+        // 创建shared_ptr版本的数据库连接供TimeMonitor使用
+        auto sharedDbConnection = std::make_shared<DatabaseConnection>(host, user, password, database, port);
+        if (!sharedDbConnection->connect()) {
+            std::cerr << "TimeMonitor数据库连接失败: " << sharedDbConnection->getLastError() << std::endl;
+            LOG_ERROR("TimeMonitor数据库连接失败: " + sharedDbConnection->getLastError());
+        }
+
         // 创建学生管理器
         StudentManager manager(std::move(dbConnection));
         LOG_INFO("学生管理器初始化成功");
+
+        // 创建计时器对象
+        TimeMonitor monitor;
+        monitor.setDatabaseConnection(sharedDbConnection);
 
         int choice;
         while (true) {
             showMenu();
             std::cin >> choice;
-
-            // 创建计时器对象
-            TimeMonitor monitor;
             
             switch (choice) {
                 case 1:

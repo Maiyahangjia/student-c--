@@ -79,9 +79,9 @@ public:
     // 生成11个随机学生信息
     std::vector<Student> generate11Students() {
         std::vector<Student> students;
-        students.reserve(11);
+        students.reserve(500);
 
-        for (int i = 0; i < 11; ++i) {
+        for (int i = 0; i <500; ++i) {
             students.push_back(generateStudent());
         }
 

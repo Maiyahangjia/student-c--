@@ -9,7 +9,7 @@
 
 // 生成11个随机学生并添加到数据库
 void generateRandomStudents(StudentManager& manager) {
-    LOG_INFO("开始生成11个随机学生信息");
+    LOG_INFO("开始生成500个随机学生信息");
     RandomStudentGenerator generator;
     std::vector<Student> students = generator.generate11Students();
 
@@ -36,7 +36,7 @@ void showMenu() {
     std::cout << "4. 查询单个学生" << std::endl;
     std::cout << "5. 查询所有学生" << std::endl;
     std::cout << "6. 初始化数据库表" << std::endl;
-    std::cout << "7. 生成11个随机学生" << std::endl;
+    std::cout << "7. 生成500个随机学生" << std::endl;
     std::cout << "0. 退出系统" << std::endl;
     std::cout << "请选择操作: " << std::endl;
 }
@@ -173,7 +173,8 @@ void queryAllStudents(StudentManager& manager) {
 int main() {
     LOG_INFO("学生管理系统启动");
     // 数据库连接信息
-    std::string host = "101.132.190.127";
+    //std::string host = "101.132.190.127";
+    std::string host = "localhost";
     std::string user = "zyc"; // 默认用户名，实际使用时需要修改
     std::string password = "zyc"; // 默认密码，实际使用时需要修改
     std::string database = "player"; // 数据库名称

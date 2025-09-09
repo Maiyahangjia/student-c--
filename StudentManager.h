@@ -28,7 +28,7 @@ public:
         query += student.getGender() + "\", \"";
         query += student.getStudentId() + "\", \"";
         query += student.getMajor() + "\", \"";
-        query += student.getContact() + ")";
+        query += student.getContact() + "\")";
 
         if (!dbConnection->executeQuery(query)) {
             LOG_ERROR("Failed to add student: " + student.getName() + ", error: " + dbConnection->getLastError());

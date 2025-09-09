@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#undef major
 
 // 学生类
 class Student {

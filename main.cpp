@@ -3,6 +3,7 @@
 #include "StudentManager.h"
 #include "RandomStudentGenerator.h"
 #include "Logger.h"
+#include "TimeMonitor.h"
 #include <iostream>
 #include <string>
 #include <memory>
@@ -173,7 +174,7 @@ void queryAllStudents(StudentManager& manager) {
 int main() {
     LOG_INFO("学生管理系统启动");
     // 数据库连接信息
-    //std::string host = "101.132.190.127";
+    
     std::string host = "localhost";
     std::string user = "zyc"; // 默认用户名，实际使用时需要修改
     std::string password = "zyc"; // 默认密码，实际使用时需要修改
@@ -204,23 +205,37 @@ int main() {
             showMenu();
             std::cin >> choice;
 
+            // 创建计时器对象
+            TimeMonitor monitor;
+            
             switch (choice) {
                 case 1:
+                    monitor.start("添加学生操作");
                     addStudent(manager);
+                    monitor.stop();
                     break;
                 case 2:
+                    monitor.start("更新学生信息操作");
                     updateStudent(manager);
+                    monitor.stop();
                     break;
                 case 3:
+                    monitor.start("删除学生操作");
                     deleteStudent(manager);
+                    monitor.stop();
                     break;
                 case 4:
+                    monitor.start("查询单个学生操作");
                     queryStudent(manager);
+                    monitor.stop();
                     break;
                 case 5:
+                    monitor.start("查询所有学生操作");
                     queryAllStudents(manager);
+                    monitor.stop();
                     break;
                 case 6:
+                    monitor.start("数据库表初始化操作");
                     LOG_INFO("用户执行数据库表初始化");
                     if (manager.initDatabase()) {
                         std::cout << "数据库表初始化成功!" << std::endl;
@@ -229,9 +244,12 @@ int main() {
                         std::cout << "数据库表初始化失败!" << std::endl;
                         LOG_ERROR("数据库表初始化失败");
                     }
+                    monitor.stop();
                     break;
                 case 7:
+                    monitor.start("生成随机学生操作");
                     generateRandomStudents(manager);
+                    monitor.stop();
                     break;
                 case 0:
                     std::cout << "谢谢使用，再见!" << std::endl;

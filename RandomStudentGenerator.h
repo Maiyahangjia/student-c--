@@ -50,7 +50,7 @@ private:
 
     // 随机生成联系方式
     std::string generateContact() {
-        std::uniform_int_distribution<int> dist(1000000000, 9999999999);
+        std::uniform_int_distribution<long long> dist(1000000000, 9999999999LL);
         return "13" + std::to_string(dist(rng));
     }
 

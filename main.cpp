@@ -8,11 +8,11 @@
 #include <string>
 #include <memory>
 
-// 生成11个随机学生并添加到数据库
+// 生成500个随机学生并添加到数据库
 void generateRandomStudents(StudentManager& manager) {
     LOG_INFO("开始生成500个随机学生信息");
     RandomStudentGenerator generator;
-    std::vector<Student> students = generator.generate11Students();
+    std::vector<Student> students = generator.generate500Students();
 
     int successCount = 0;
     for (const auto& student : students) {
@@ -206,6 +206,21 @@ int main() {
         // 创建学生管理器
         StudentManager manager(std::move(dbConnection));
         LOG_INFO("学生管理器初始化成功");
+        
+        // 从数据库获取最大的学号，设置初始计数器值
+        std::string maxStudentId = manager.getMaxStudentId();
+        if (!maxStudentId.empty()) {
+            // 假设学号格式为：2025+6位数字，提取数字部分
+            std::string numberPart = maxStudentId.substr(4); // 跳过前4个字符(2025)
+            try {
+                int currentMaxId = std::stoi(numberPart);
+                // 设置RandomStudentGenerator的计数器，这样下一个学号会自动加1
+                RandomStudentGenerator::setStudentIdCounter(currentMaxId);
+                LOG_INFO("成功设置学号计数器初始值为: " + std::to_string(currentMaxId));
+            } catch (const std::exception& e) {
+                LOG_ERROR("解析最大学号失败: " + std::string(e.what()));
+            }
+        }
 
         // 创建计时器对象
         TimeMonitor monitor;

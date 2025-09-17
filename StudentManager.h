@@ -134,6 +134,32 @@ public:
         return students;
     }
 
+    // 获取数据库中最大的学生学号
+    std::string getMaxStudentId() {
+        LOG_INFO("Attempting to fetch maximum student ID");
+        
+        // 改进的SQL查询，确保正确处理VARCHAR类型的学号
+        // 由于学号格式为"2025xxxxxx"，可以使用ORDER BY和LIMIT 1确保获取最大值
+        std::string query = "SELECT student_id FROM students ORDER BY CAST(student_id AS UNSIGNED) DESC LIMIT 1";
+        MYSQL_RES* result = dbConnection->executeSelectQuery(query);
+        std::string maxStudentId = "";
+        
+        if (result) {
+            MYSQL_ROW row = mysql_fetch_row(result);
+            if (row && row[0]) {
+                maxStudentId = row[0];
+                LOG_INFO("Successfully fetched maximum student ID: " + maxStudentId);
+            } else {
+                LOG_INFO("No student records found");
+            }
+            mysql_free_result(result);
+        } else {
+            LOG_ERROR("Failed to execute query for maximum student ID: " + dbConnection->getLastError());
+        }
+        
+        return maxStudentId;
+    }
+    
     // 初始化数据库表
     bool initDatabase() {
         LOG_INFO("Attempting to initialize database table: students");
